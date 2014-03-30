@@ -1,17 +1,18 @@
 /* Drop existing tables */
+DROP TABLE IF EXISTS participates CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS passenger_factor CASCADE;
+DROP TABLE IF EXISTS passengers CASCADE;
+
 DROP TABLE IF EXISTS flights CASCADE;
+DROP TABLE IF EXISTS weekly_flights CASCADE;
+DROP TABLE IF EXISTS weekday CASCADE;
+DROP TABLE IF EXISTS airplane CASCADE;
 DROP TABLE IF EXISTS route CASCADE;
 DROP TABLE IF EXISTS city CASCADE;
-DROP TABLE IF EXISTS airplane CASCADE;
-DROP TABLE IF EXISTS bookings CASCADE;
-DROP TABLE IF EXISTS passengers CASCADE;
-DROP TABLE IF EXISTS weekday CASCADE;
-DROP TABLE IF EXISTS passenger_factor CASCADE;
-DROP TABLE IF EXISTS weekly_flights CASCADE;
-DROP TABLE IF EXISTS particaptes CASCADE;
 
 /*Variables */
-set  @text_lenght = 20;
+set @text_length = 20;
 
 /* Create the tables */
 
@@ -34,11 +35,12 @@ create table route(
 
 create table city(
 		id int,
-		name varchar(@text_length));
+		name varchar(25),
+		constraint pk_city primary key(id));
 
 create table airplane(
 		id int,
-		plane_type varchar(@text_length),
+		plane_type varchar(25),
 		capacity int,
 		constraint pk_airplane primary key(id));
 
@@ -47,17 +49,17 @@ create table bookings(
 		credit_card int,
 		price int,
 		phone_number int,
-		email varchar(@text_length),
+		email varchar(25),
 		flight_id int,
 		constraint pk_bookings primary key(id));
 
 create table passengers(
 		ssn int,
-		name varchar(@text_length),
+		name varchar(25),
 		constraint pk_passenger primary key(ssn));
 
 create table weekday(
-		_name varchar(@text_length),
+		_name varchar(25),
 		dayfactor int,
 		_year int,
 		constraint pk_weekday primary key(_name, _year));
@@ -67,7 +69,7 @@ create table weekly_flights(
 		_time time,
 		route_id int,
 		_year int,
-		weekday_name varchar(@text_length),
+		weekday_name varchar(25),
 		airplane_id int,
 		constraint pk_weekly_flights primary key(id));
 
@@ -77,9 +79,22 @@ create table participates(
 		ticket_number int,
 		constraint pk_participates primary key(booking_id));
 
+/* Setting up foreign keys */
+select 'Setting up foreign keys' as 'message';
 
+alter table flights add constraint fk_weekly_flights foreign key (weekly_flights_id) references weekly_flights(id);
 
+alter table route add constraint fk_from_city foreign key (from_city_id) references city(id);
+alter table route add constraint fk_to_city foreign key (to_city_id) references city(id);
 
+alter table bookings add constraint fk_flight_id foreign key (flight_id) references flights(id);
+
+alter table weekly_flights add constraint fk_route foreign key (route_id) references route(id);
+alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references weekday(_name, _year);
+alter table weekly_flights add constraint fk_airplane_id foreign key (airplane_id) references airplane(id);
+
+alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
+ 
 
 
 
