@@ -34,11 +34,11 @@ create table route(
 
 create table city(
 		id int,
-		name varchar(25));
+		name varchar(@text_length));
 
 create table airplane(
 		id int,
-		plane_type varchar(25),
+		plane_type varchar(@text_length),
 		capacity int,
 		constraint pk_airplane primary key(id));
 
@@ -47,17 +47,17 @@ create table bookings(
 		credit_card int,
 		price int,
 		phone_number int,
-		email varchar(25),
+		email varchar(@text_length),
 		flight_id int,
 		constraint pk_bookings primary key(id));
 
 create table passengers(
 		ssn int,
-		name varchar(25),
+		name varchar(@text_length),
 		constraint pk_passenger primary key(ssn));
 
 create table weekday(
-		_name varchar(25),
+		_name varchar(@text_length),
 		dayfactor int,
 		_year int,
 		constraint pk_weekday primary key(_name, _year));
@@ -67,7 +67,7 @@ create table weekly_flights(
 		_time time,
 		route_id int,
 		_year int,
-		weekday_name varchar(25),
+		weekday_name varchar(@text_length),
 		airplane_id int,
 		constraint pk_weekly_flights primary key(id));
 
