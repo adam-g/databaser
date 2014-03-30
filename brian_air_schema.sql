@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS passengers CASCADE;
 
 DROP TABLE IF EXISTS flights CASCADE;
 DROP TABLE IF EXISTS weekly_flights CASCADE;
-DROP TABLE IF EXISTS weekday CASCADE;
+DROP TABLE IF EXISTS _weekday CASCADE;
 DROP TABLE IF EXISTS airplane CASCADE;
 DROP TABLE IF EXISTS route CASCADE;
 DROP TABLE IF EXISTS city CASCADE;
@@ -19,33 +19,33 @@ set @text_length = 20;
 SELECT 'Creating tables' AS 'Message';
 
 create table flights(
-		id int, 
+		id INT not null auto_increment,
 		booked_seats int, 
 		flight_date date, 
 		weekly_flights_id int, 
 		constraint pk_flights primary key(id));
 
 create table route(
-		id int,
+		id INT not null auto_increment,
 		base_price int,
-		year int,
+		_year int,
 		from_city_id int,
 		to_city_id int,
 		constraint pk_route primary key(id));
 
 create table city(
-		id int,
-		name varchar(25),
+		id INT not null auto_increment,
+		_name varchar(25),
 		constraint pk_city primary key(id));
 
 create table airplane(
-		id int,
+		id INT not null auto_increment,
 		plane_type varchar(25),
 		capacity int,
 		constraint pk_airplane primary key(id));
 
 create table bookings(
-		id int,
+		id INT not null auto_increment,
 		credit_card int,
 		price int,
 		phone_number int,
@@ -65,7 +65,7 @@ create table _weekday(
 		constraint pk_weekday primary key(_name, _year));
 
 create table weekly_flights(
-		id int,
+		id int not null auto_increment,
 		_time time,
 		route_id int,
 		_year int,
@@ -77,7 +77,7 @@ create table participates(
 		booking_id int,
 		ssn int,
 		ticket_number int,
-		constraint pk_participates primary key(booking_id));
+		constraint pk_participates primary key(booking_id, ssn));
 
 create table passenger_factor(
 		_year int,
@@ -97,10 +97,10 @@ alter table bookings add constraint fk_flight_id foreign key (flight_id) referen
 alter table weekly_flights add constraint fk_route foreign key (route_id) references route(id);
 alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references _weekday(_name, _year);
 alter table weekly_flights add constraint fk_airplane_id foreign key (airplane_id) references airplane(id);
+alter table weekly_flights add constraint fk_year foreign key (_year) references passenger_factor(_year);
 
 alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
 
-alter table passenger_factor add constraint fk_year foreign key (_year) references weekly_flights(_year);
 
  
 
