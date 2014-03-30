@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS weekly_flights CASCADE;
 DROP TABLE IF EXISTS particaptes CASCADE;
 
 /*Variables */
-set @text_lenght = '20';
+set  @text_lenght = 20;
 
 /* Create the tables */
 
@@ -34,11 +34,11 @@ create table route(
 
 create table city(
 		id int,
-		name varchar(@text_lenght));
+		name varchar(25));
 
 create table airplane(
 		id int,
-		plane_type varchar(@text_lenght),
+		plane_type varchar(25),
 		capacity int,
 		constraint pk_airplane primary key(id));
 
@@ -47,27 +47,27 @@ create table bookings(
 		credit_card int,
 		price int,
 		phone_number int,
-		email varchar(@text_lenght),
+		email varchar(25),
 		flight_id int,
 		constraint pk_bookings primary key(id));
 
 create table passengers(
 		ssn int,
-		name varchar(@text_lenght),
-		constraint pk_passenger primary key(id));
+		name varchar(25),
+		constraint pk_passenger primary key(ssn));
 
 create table weekday(
-		name varchar(@text_lenght),
+		_name varchar(25),
 		dayfactor int,
 		_year int,
-		constraint pk_weekday primary key(name, year));
+		constraint pk_weekday primary key(_name, _year));
 
 create table weekly_flights(
 		id int,
 		_time time,
 		route_id int,
 		_year int,
-		weekday_name varchar(@text_lenght),
+		weekday_name varchar(25),
 		airplane_id int,
 		constraint pk_weekly_flights primary key(id));
 
