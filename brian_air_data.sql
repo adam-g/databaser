@@ -1,10 +1,9 @@
-INSERT INTO passenger_factor(_year, passenger_factor) VALUES(
+INSERT INTO passenger_factor(_year, passenger_factor) VALUES
 	(2010, 50),
 	(2011, 60),
 	(2012, 70),
 	(2013, 80),
-	(2014, 90)
-);
+	(2014, 90);
 
 /* Airplane */
 insert into airplane
@@ -16,7 +15,7 @@ insert into airplane
 	('B 767', 155),
 	('Hot air balloon', 5);
 
-INSERT INTO _weekday(_name, day_factor, _year) VALUES(
+INSERT INTO _weekday(_name, day_factor, _year) VALUES
 		(MONDAY, 1, 2010),
 		(TUESDAY, 1, 2010),
 		(WEDNESDAY, 2, 2010),
@@ -51,8 +50,7 @@ INSERT INTO _weekday(_name, day_factor, _year) VALUES(
 		(THURSDAY, 7, 2014),
 		(FRIDAY, 9, 2014),
 		(SATURDAY, 8, 2014),
-		(SUNDAY, 9, 2014)
-);
+		(SUNDAY, 9, 2014);
 
 /*Destinations */
 insert into city 
