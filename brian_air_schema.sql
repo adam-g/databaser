@@ -58,9 +58,9 @@ create table passengers(
 		name varchar(25),
 		constraint pk_passenger primary key(ssn));
 
-create table weekday(
+create table _weekday(
 		_name varchar(25),
-		dayfactor int,
+		day_factor int,
 		_year int,
 		constraint pk_weekday primary key(_name, _year));
 
@@ -79,6 +79,11 @@ create table participates(
 		ticket_number int,
 		constraint pk_participates primary key(booking_id));
 
+create table passenger_factor(
+		_year int,
+		passenger_factor int,
+		constraint pk_passenger_factor primary key(_year));
+
 /* Setting up foreign keys */
 select 'Setting up foreign keys' as 'message';
 
@@ -90,10 +95,13 @@ alter table route add constraint fk_to_city foreign key (to_city_id) references 
 alter table bookings add constraint fk_flight_id foreign key (flight_id) references flights(id);
 
 alter table weekly_flights add constraint fk_route foreign key (route_id) references route(id);
-alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references weekday(_name, _year);
+alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references _weekday(_name, _year);
 alter table weekly_flights add constraint fk_airplane_id foreign key (airplane_id) references airplane(id);
 
 alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
+
+alter table passenger_factor add constraint fk_year foreign key (_year) references weekly_flights(_year);
+
  
 
 
