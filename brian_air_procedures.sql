@@ -51,39 +51,42 @@ drop procedure if exists calculate_price;
 
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in @flight_id int, out price int)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in flight_id int, out price int)
 begin
 	-- variables
+		-- dummy values so the procedure will execute
 	set @airplane_size = 60;
-	set @routeprice = 2500;
+	-- set @routeprice = 2500;
 	set @weekdayfactor = 4.7;
 	
-	-- fetch the number of passengers on the flight
-	set @booked := 1; 
+	-- fetch the number of passengers on the flight [Completed]
 	select booked_seats 
 		from flights 
 		where id = flight_id
 		into @passenger_on_flight;
 
-	-- fetch the passenger factor
-	set @flight_year := 2014; -- Needs to be fetched!
+	-- fetch the passenger factor [TODO]
+	set @flight_year := 2014; -- Needs to be fetched! TODO
 	select passenger_factor
 		from passenger_factor
 		where _year = @flight_year
 		into @passenger_factor;
 	
-	-- fetch the price for this route
+	-- fetch the price for this route [Completed]
 	select base_price
 		from weekly_flights w
 		inner join (select f.weekly_flights_id 
 						from flights f
-						where f.id = @flight_id) f
+						where f.id = flight_id) f
 		on w.id = f.weekly_flights_id
 		left join route
 		on route.id = w.route_id
 			into @route_price;
 
-	-- fetch the 
+	-- fetch the airplane size [TODO]
+
+
+	-- fetch the weekday factor [TODO]
 
 	-- Calculate price
 	select (@routeprice * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor) 
@@ -97,6 +100,4 @@ $$ DELIMITER ;
 */
 
 call create_reservation(2, 2, 'mail', 073);
-
-select * from flights;
 
