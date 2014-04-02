@@ -55,9 +55,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in flight_id int, 
 begin
 	-- variables
 		-- dummy values so the procedure will execute
-	set @airplane_size = 60;
+	-- set @airplane_size = 60;
 	-- set @routeprice = 2500;
-	set @weekdayfactor = 4.7;
+	-- set @weekdayfactor = 4.7;
 	
 	-- fetch the number of passengers on the flight [Completed]
 	select booked_seats 
@@ -65,12 +65,16 @@ begin
 		where id = flight_id
 		into @passenger_on_flight;
 
-	-- fetch the passenger factor [TODO]
-	set @flight_year := 2014; -- Needs to be fetched! TODO
+	-- fetch the passenger factor [Completed]	
 	select passenger_factor
-		from passenger_factor
-		where _year = @flight_year
-		into @passenger_factor;
+			from weekly_flights w
+			inner join (select f.weekly_flights_id 
+							from flights f
+							where f.id = flight_id) f
+			on w.id = f.weekly_flights_id
+			left join passenger_factor
+			on passenger_factor._year = w._year
+				into @passenger_factor;
 	
 	-- fetch the price for this route [Completed]
 	select base_price
@@ -83,14 +87,38 @@ begin
 		on route.id = w.route_id
 			into @route_price;
 
-	-- fetch the airplane size [TODO]
-
+	-- fetch the airplane size [Completed]
+	select capacity, weekday_name
+			from weekly_flights w
+			inner join (select f.weekly_flights_id 
+							from flights f
+							where f.id = flight_id) f
+			on w.id = f.weekly_flights_id
+			left join airplane
+			on airplane.id = w.airplane_id
+				into @airplane_size, @weekday;
+	select @airplane_size;
+	select @weekday;
 
 	-- fetch the weekday factor [TODO]
+	select day_factor
+			from weekly_flights w
+			inner join (select f.weekly_flights_id 
+							from flights f
+							where f.id = flight_id) f
+			on w.id = f.weekly_flights_id
+			left join (select * 
+							from _weekday
+							where _weekday._name = @weekday) wd
+			on wd._year = w._year
+				into @weekdayfactor;
 
 	-- Calculate price
-	select (@routeprice * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor) 
+	select (@route_price * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor) 
 		into price;
+
+	-- Tests
+	-- select @route_price, @weekdayfactor, @passenger_on_flight, @airplane_size, @passenger_factor;
 	
 end
 $$ DELIMITER ;
@@ -100,4 +128,7 @@ $$ DELIMITER ;
 */
 
 call create_reservation(2, 2, 'mail', 073);
+call calculate_price(1, @out);
+select @out;
 
+select * from weekly_flights;
