@@ -33,11 +33,49 @@ begin
 		(@price, participants, email, flight_id);
 	
 	select last_insert_id()
-		into booking_id;
-	
+		into @booking_id;
+	set booking_id := @booking_id;
 end
 $$ DELIMITER ;
 
+/*
+Procedure that adds passenger details to a specific reservation
+*/
+drop procedure if exists `add_passenger_details`;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_passenger_details`(in booking_id int, in SSN varchar(25), 
+																	in first_name varchar(25), in surname varchar(25))
+begin
+-- Create passenger tuples [TODO needs to check if the SSN already exists or not]
+	-- Check if the passenger already exists in our database and if not: create a new passenger tuple
+	select count(*)
+		from passengers
+		where passengers.ssn like SSN;
+	
+/*	if (@num_passanger = 0) then 
+		insert into passengers
+			(ssn, first_name, surname)
+			values
+			(SSN, first_name, surname);
+	end if; */
+
+	if (not exists(select * from passengers where passengers.ssn = SSN)) then 
+		insert into passengers
+			(ssn, first_name, surname)
+			values
+			(SSN, first_name, surname);
+	end if;
+
+-- Update the participates relation [TODO should include some error handling]
+	insert into participates
+		(booking_id, ssn) -- Not handing out a ticket_number since the booking might not be paid yet
+		values
+		(booking_id, SSN);
+	
+end
+$$ DELIMITER ;
 
 /*
 Procedure for calculating the price of a seat on a specific flight
@@ -92,8 +130,6 @@ begin
 			left join airplane
 			on airplane.id = w.airplane_id
 				into @airplane_size, @weekday;
-	select @airplane_size;
-	select @weekday;
 
 	-- fetch the weekday factor [TODO]
 	select day_factor
@@ -121,9 +157,13 @@ $$ DELIMITER ;
 /* 
 	TESTS
 */
+set @b_id = 0;
+call create_reservation(3, 3, 'mail', 073, @booking_id);
+select @booking_id;
+call add_passenger_details(@booking_id, '2', 'Tobias', 'Genborg');
+call add_passenger_details(@booking_id, '123412', 'ExampleName', 'Surname');
+call add_passenger_details(@booking_id, '1111111', 'Test', 'test');
 
-call create_reservation(2, 2, 'mail', 073);
-call calculate_price(1, @out);
-select @out;
-
-select * from weekly_flights;
+select * from bookings;
+select * from passengers;
+select * from participates;

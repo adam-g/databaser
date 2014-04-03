@@ -55,8 +55,9 @@ create table bookings(
 		constraint pk_bookings primary key(id));
 
 create table passengers(
-		ssn int,
-		name varchar(25),
+		ssn varchar(25),
+		first_name varchar(25),
+		surname varchar(25),
 		constraint pk_passenger primary key(ssn));
 
 create table _weekday(
@@ -76,7 +77,7 @@ create table weekly_flights(
 
 create table participates(
 		booking_id int,
-		ssn int,
+		ssn varchar(25),
 		ticket_number int,
 		constraint pk_participates primary key(booking_id, ssn));
 
