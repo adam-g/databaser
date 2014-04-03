@@ -50,16 +50,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_passenger_details`(in booking_i
 begin
 -- Create passenger tuples [TODO needs to check if the SSN already exists or not]
 	-- Check if the passenger already exists in our database and if not: create a new passenger tuple
-	select count(*)
-		from passengers
-		where passengers.ssn like SSN;
-	
-/*	if (@num_passanger = 0) then 
-		insert into passengers
-			(ssn, first_name, surname)
-			values
-			(SSN, first_name, surname);
-	end if; */
 
 	if (not exists(select * from passengers where passengers.ssn = SSN)) then 
 		insert into passengers
@@ -86,11 +76,6 @@ DELIMITER $$
 USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in flight_id int, out price int)
 begin
-	-- variables
-		-- dummy values so the procedure will execute
-	-- set @airplane_size = 60;
-	-- set @routeprice = 2500;
-	-- set @weekdayfactor = 4.7;
 	
 	-- fetch the number of passengers on the flight [Completed]
 	select booked_seats 
@@ -131,7 +116,7 @@ begin
 			on airplane.id = w.airplane_id
 				into @airplane_size, @weekday;
 
-	-- fetch the weekday factor [TODO]
+	-- fetch the weekday factor [Completed]
 	select day_factor
 			from weekly_flights w
 			inner join (select f.weekly_flights_id 
