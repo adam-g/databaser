@@ -6,15 +6,15 @@ Procedure for creating a reservation on a specific flight
 
 drop procedure if exists `create_reservation`;
 
-/*Check if a specific  */ 
 DELIMITER $$
 USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `create_reservation`(in flight_id int, in participants int, 
-																	in email varchar(20), in phone_number int)
+																	in email varchar(20), in phone_number int,
+																	out booking_id int)
 begin
 -- Variables
 
--- 1. Checks
+-- 1. Checks [TODO check if there are enough unpaid seats]
 
 -- 2. Create a reservation
 	-- Increment the booked seats
@@ -24,20 +24,16 @@ begin
 
 	-- Calculate price
 	call calculate_price(flight_id, @base_price);
-
 	select @base_price * participants into @price;
-	select @price;
 
 	-- Create new booking tuple
 	insert into bookings 
 		(price, phone_number, email, flight_id)
 		values
 		(@price, participants, email, flight_id);
-
-	-- Create passengers
-
-
-	-- Update the participates tuple
+	
+	select last_insert_id()
+		into booking_id;
 	
 end
 $$ DELIMITER ;
@@ -45,7 +41,6 @@ $$ DELIMITER ;
 
 /*
 Procedure for calculating the price of a seat on a specific flight
-	--Not completed!!
 */
 drop procedure if exists calculate_price;
 
