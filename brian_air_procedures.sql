@@ -142,18 +142,28 @@ $$ DELIMITER ;
 /* 
 Procedure to add payment details to the database.
 [TODO] Discuss how we should create procedure 4c. New credit card table or extra columns in the bookings table?
-		Implements the procudure using a new table in the database.
+		Implements the procudure using a new table in the database. 
+		[TODO] This might be against normalization; do some thinking about this implementation and potential improvements.
 */
+drop procedure if exists add_payment_details;
+
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in flight_id int, /*in name_of_holder varchar(20), 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in flight_id int, in name_of_holder varchar(20), 
 																	in _type varchar(20), in expiry_month varchar(20), 
-																	in expiry_year varchar(20),*/ in credit_card_number varchar(20),
+																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
 begin
+	/* Create a new tuple in the credit_card table */
+	insert into credit_card
+	(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
+	values
+	(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
 
-	/*Create a new tuple  */
-	
+	/* Update the corresponding booking table*/
+	update bookings b
+		set credit_card = card_number
+		where b.flight_id = flight_id;
 
 end
 $$ DELIMITER ;
@@ -161,13 +171,6 @@ $$ DELIMITER ;
 /* 
 	TESTS
 */
-set @b_id = 0;
-call create_reservation(3, 3, 'mail', 073, @booking_id);
-select @booking_id;
-call add_passenger_details(@booking_id, '2', 'Tobias', 'Genborg');
-call add_passenger_details(@booking_id, '123412', 'ExampleName', 'Surname');
-call add_passenger_details(@booking_id, '1111111', 'Test', 'test');
 
-select * from bookings;
-select * from passengers;
-select * from participates;
+select 'Successfully created procedures' as 'message'
+
