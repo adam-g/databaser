@@ -2,6 +2,7 @@
 
 DROP TABLE IF EXISTS participates CASCADE;
 DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS credit_card CASCADE;
 DROP TABLE IF EXISTS passengers CASCADE;
 
 DROP TABLE IF EXISTS flights CASCADE;
@@ -19,26 +20,6 @@ set @text_length = 20;
 
 SELECT 'Creating tables' AS 'Message';
 
-create table flights(
-		id INT not null auto_increment,
-		booked_seats int, 
-		flight_date date, 
-		weekly_flights_id int, 
-		constraint pk_flights primary key(id));
-
-create table route(
-		id INT not null auto_increment,
-		base_price int,
-		_year int,
-		from_city_id int,
-		to_city_id int,
-		constraint pk_route primary key(id));
-
-create table city(
-		id INT not null auto_increment,
-		_name varchar(25),
-		constraint pk_city primary key(id));
-
 create table airplane(
 		id INT not null auto_increment,
 		plane_type varchar(25),
@@ -47,18 +28,58 @@ create table airplane(
 
 create table bookings(
 		id INT not null auto_increment,
-		credit_card int,
+		credit_card varchar(20),
 		price int,
 		phone_number int,
 		email varchar(25),
 		flight_id int,
 		constraint pk_bookings primary key(id));
 
+create table city(
+		id INT not null auto_increment,
+		_name varchar(25),
+		constraint pk_city primary key(id));
+
+create table credit_card(
+		id varchar(20) not null,
+		name_of_holder varchar(20),
+		_type varchar(20),
+		expiry_month int,
+		expiry_year int,
+		amount int,
+		constraint pk_credit_card primary key(id));
+
+create table flights(
+		id INT not null auto_increment,
+		booked_seats int, 
+		flight_date date, 
+		weekly_flights_id int, 
+		constraint pk_flights primary key(id));
+
+create table participates(
+		booking_id int,
+		ssn varchar(25),
+		ticket_number int,
+		constraint pk_participates primary key(booking_id, ssn));
+
+create table passenger_factor(
+		_year int,
+		passenger_factor int,
+		constraint pk_passenger_factor primary key(_year));
+
 create table passengers(
 		ssn varchar(25),
 		first_name varchar(25),
 		surname varchar(25),
 		constraint pk_passenger primary key(ssn));
+
+create table route(
+		id INT not null auto_increment,
+		base_price int,
+		_year int,
+		from_city_id int,
+		to_city_id int,
+		constraint pk_route primary key(id));
 
 create table _weekday(
 		_name varchar(25),
@@ -75,17 +96,6 @@ create table weekly_flights(
 		airplane_id int,
 		constraint pk_weekly_flights primary key(id));
 
-create table participates(
-		booking_id int,
-		ssn varchar(25),
-		ticket_number int,
-		constraint pk_participates primary key(booking_id, ssn));
-
-create table passenger_factor(
-		_year int,
-		passenger_factor int,
-		constraint pk_passenger_factor primary key(_year));
-
 /* Setting up foreign keys */
 select 'Setting up foreign keys' as 'message';
 
@@ -95,6 +105,7 @@ alter table route add constraint fk_from_city foreign key (from_city_id) referen
 alter table route add constraint fk_to_city foreign key (to_city_id) references city(id);
 
 alter table bookings add constraint fk_flight_id foreign key (flight_id) references flights(id);
+alter table bookings add constraint fk_credit_card foreign key (credit_card) references credit_card(id);
 
 alter table weekly_flights add constraint fk_route foreign key (route_id) references route(id);
 alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references _weekday(_name, _year);
@@ -103,7 +114,7 @@ alter table weekly_flights add constraint fk_year foreign key (_year) references
 
 alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
 
-
+select 'Successful table setup' as 'message';
  
 
 

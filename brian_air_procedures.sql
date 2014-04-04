@@ -140,6 +140,25 @@ end
 $$ DELIMITER ;
 
 /* 
+Procedure to add payment details to the database.
+[TODO] Discuss how we should create procedure 4c. New credit card table or extra columns in the bookings table?
+		Implements the procudure using a new table in the database.
+*/
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in flight_id int, /*in name_of_holder varchar(20), 
+																	in _type varchar(20), in expiry_month varchar(20), 
+																	in expiry_year varchar(20),*/ in credit_card_number varchar(20),
+																	in amount int)
+begin
+
+	/*Create a new tuple  */
+	
+
+end
+$$ DELIMITER ;
+
+/* 
 	TESTS
 */
 set @b_id = 0;
