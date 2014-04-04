@@ -116,7 +116,7 @@ begin
 			on airplane.id = w.airplane_id
 				into @airplane_size, @weekday;
 
-	-- fetch the weekday factor [Completed]
+	-- fetch the weekday factor [Completedg]
 	select day_factor
 			from weekly_flights w
 			inner join (select f.weekly_flights_id 
