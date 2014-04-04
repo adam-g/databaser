@@ -18,7 +18,7 @@ call create_reservation(@flight_id, 3, 'mail', 073, @booking_id);
 select 'Managed to add several passengers with same info' as 'message';
 
 -- Test if we can add payment details to a booking
-call add_payment_details(@flight_id, "Albert E", "Visa", "3", "2018", @card_number, @amount);
+call add_payment_details(@booking_id, "Albert E", "Visa", "3", "2018", @card_number, @amount);
 select 'Managed to add several passengers with same info' as 'message';
 
 /*select * from bookings;
@@ -26,4 +26,4 @@ select * from passengers;
 select * from participates;
 select * from credit_card;*/
 
-select 'Testfile completed without errors' as 'message';
+select 'Test file completed without errors' as 'message';

@@ -17,10 +17,10 @@ begin
 -- 1. Checks [TODO check if there are enough unpaid seats]
 
 -- 2. Create a reservation
-	-- Increment the booked seats
-	update flights 
+	-- Increment the booked seats [This block has been moved to generate_ticket_number]
+	/* update flights 
 		set booked_seats = booked_seats + participants
-		where flights.id = flight_id;
+		where flights.id = flight_id; */
 
 	-- Calculate price
 	call calculate_price(flight_id, @base_price);
@@ -149,7 +149,7 @@ drop procedure if exists add_payment_details;
 
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in flight_id int, in name_of_holder varchar(20), 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id int, in name_of_holder varchar(20), 
 																	in _type varchar(20), in expiry_month varchar(20), 
 																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
@@ -163,8 +163,30 @@ begin
 	/* Update the corresponding booking table*/
 	update bookings b
 		set credit_card = card_number
-		where b.flight_id = flight_id;
+		where b.id = booking_id;
 
+end
+$$ DELIMITER ;
+
+/* 
+Generates a new ticket number that is unique for each flight 
+				[TODO]: Do something smart!
+*/
+drop procedure if exists generate_ticket_number;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_ticket_number`(in flight_id int, out ticket_number varchar(20))
+begin
+	-- Increment the booked seats for the specific flight
+	update flights 
+		set booked_seats = booked_seats + 1
+		where flights.id = flight_id;
+	-- Generate a ticket id that is unique for each flight [i.e the booked seats variable]
+	select booked_seats
+		from flights
+		where flights.id = flight_id
+		into ticket_number;
 end
 $$ DELIMITER ;
 

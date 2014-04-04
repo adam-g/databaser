@@ -114,6 +114,37 @@ alter table weekly_flights add constraint fk_year foreign key (_year) references
 
 alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
 
+/* Creating triggers */
+select 'Creating triggers' as 'message';
+-- After insertion in the credit_card table:
+		-- Look for the credit card in the bookings table and fetch the identifier for the booking.
+		-- Assign a ticket number to each passenger that belongs to this booking.
+drop trigger if exists `credit_card_insert`
+
+DELIMITER $$ 
+create trigger `credit_card_insert` 
+after insert on `credit_card`
+for each row
+begin
+    select id, flight_id
+		from bookings 
+		where bookings.credit_card = new.credit_card_number 
+		into @booking_id, @flight_id;
+
+	select ssn as new_passengers
+		from participates p
+		where p.booking_id = @booking_id;
+
+	-- [TODO] this needs to be done in a loop or similiar. Cursors?
+	call generate_ticket_number(@flight_id, @ticket_num);
+
+	-- Update one (1) tuple in the participates table by giving it a ticket number
+	-- End [TODO]
+
+end
+$$ DELIMITER ;
+
+/* Done! */
 select 'Successful table setup' as 'message';
  
 
