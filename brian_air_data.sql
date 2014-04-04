@@ -116,6 +116,6 @@ values
 	(0, '2014-03-25', 2),
 	(0, '2014-03-24', 1);
 
-
+select 'Populated the database successfully' as 'message';
 	
 	

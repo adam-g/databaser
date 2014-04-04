@@ -25,3 +25,5 @@ select 'Managed to add several passengers with same info' as 'message';
 select * from passengers;
 select * from participates;
 select * from credit_card;*/
+
+select 'Testfile completed without errors' as 'message';

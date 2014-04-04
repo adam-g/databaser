@@ -41,13 +41,13 @@ create table city(
 		constraint pk_city primary key(id));
 
 create table credit_card(
-		id varchar(20) not null,
+		credit_card_number varchar(20) not null,
 		name_of_holder varchar(20),
 		_type varchar(20),
 		expiry_month int,
 		expiry_year int,
 		amount int,
-		constraint pk_credit_card primary key(id));
+		constraint pk_credit_card primary key(credit_card_number));
 
 create table flights(
 		id INT not null auto_increment,
@@ -105,7 +105,7 @@ alter table route add constraint fk_from_city foreign key (from_city_id) referen
 alter table route add constraint fk_to_city foreign key (to_city_id) references city(id);
 
 alter table bookings add constraint fk_flight_id foreign key (flight_id) references flights(id);
-alter table bookings add constraint fk_credit_card foreign key (credit_card) references credit_card(id);
+alter table bookings add constraint fk_credit_card foreign key (credit_card) references credit_card(credit_card_number);
 
 alter table weekly_flights add constraint fk_route foreign key (route_id) references route(id);
 alter table weekly_flights add constraint fk_weekday foreign key (weekday_name, _year) references _weekday(_name, _year);
