@@ -116,31 +116,18 @@ alter table participates add constraint fk_booking_id foreign key (booking_id) r
 
 /* Creating triggers */
 select 'Creating triggers' as 'message';
--- After insertion in the credit_card table:
-		-- Look for the credit card in the bookings table and fetch the identifier for the booking.
-		-- Assign a ticket number to each passenger that belongs to this booking.
-drop trigger if exists `credit_card_insert`
+-- After insertion in the bookings table: Assign tickets
+drop trigger if exists `bookings_update`;
 
 DELIMITER $$ 
-create trigger `credit_card_insert` 
-after insert on `credit_card`
+create trigger `bookings_update` 
+after update on `bookings`
 for each row
 begin
-    select id, flight_id
-		from bookings 
-		where bookings.credit_card = new.credit_card_number 
+    select new.id, new.flight_id
 		into @booking_id, @flight_id;
 
-	select ssn as new_passengers
-		from participates p
-		where p.booking_id = @booking_id;
-
-	-- [TODO] this needs to be done in a loop or similiar. Cursors?
-	call generate_ticket_number(@flight_id, @ticket_num);
-
-	-- Update one (1) tuple in the participates table by giving it a ticket number
-	-- End [TODO]
-
+	call assign_tickets_to_passengers(@booking_id, @flight_id);
 end
 $$ DELIMITER ;
 

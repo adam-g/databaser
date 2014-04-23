@@ -1,4 +1,4 @@
-/* Testar att göra lite queries för att se att inte allt rä trasigt*/
+/* Testar att göra lite queries för att se att inte allt är trasigt*/
 
 select route.id, route.base_price
 from route, weekly_flights

@@ -154,16 +154,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id 
 																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
 begin
-	/* Create a new tuple in the credit_card table */
-	insert into credit_card
-	(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
-	values
-	(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
+	-- [TODO][Do some controls of the credit card info]
+	-- [TODO][Make sure that a booking can't be payed several times]
+	/* Check if the credit card already exists */
+	select count(*)
+		from credit_card
+		where credit_card_number = card_number
+		into @tuple;
 
+	if @tuple = 0 then
+		/* Create a new tuple in the credit_card table */
+		insert into credit_card
+		(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
+		values
+		(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
+	end if;
+	
 	/* Update the corresponding booking table*/
 	update bookings b
-		set credit_card = card_number
-		where b.id = booking_id;
+			set credit_card = card_number
+			where b.id = booking_id;
 
 end
 $$ DELIMITER ;
@@ -182,11 +192,50 @@ begin
 	update flights 
 		set booked_seats = booked_seats + 1
 		where flights.id = flight_id;
-	-- Generate a ticket id that is unique for each flight [i.e the booked seats variable]
+	-- Generate a ticket id that is unique for each flight [i.e the booked seats variable][TODO: do something smarter]
 	select booked_seats
 		from flights
 		where flights.id = flight_id
 		into ticket_number;
+end
+$$ DELIMITER ;
+
+/* 
+Assigns tickets to all passengers in a booking.
+*/
+drop procedure if exists assign_tickets_to_passengers;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `assign_tickets_to_passengers`(in booking_id int, in flight_id int)
+begin
+	-- variables
+	declare finished integer default 0;
+	declare temp_ssn varchar(25) default "";
+	declare temp_booking_id integer default 0;
+	-- declare cursor
+	declare cur1 cursor for select p.ssn
+								from participates p
+								where p.booking_id = booking_id;
+	
+	declare continue handler for not found set finished = 1;
+	-- fetch results using the cursor
+	open cur1;
+	
+	generate_tickets : loop
+		fetch cur1 into temp_ssn;
+		if finished = 1 then
+			leave generate_tickets;
+		end if;
+
+		call generate_ticket_number(@flight_id, @ticket_num);
+		update participates p
+			set p.ticket_number =  @ticket_num
+			where p.ssn = temp_ssn and p.booking_id = booking_id;
+	end loop generate_tickets;
+
+	-- Update one (1) tuple in the participates table by giving it a ticket number
+	-- [TODO]
 end
 $$ DELIMITER ;
 

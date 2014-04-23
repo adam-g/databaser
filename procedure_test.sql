@@ -19,11 +19,21 @@ select 'Managed to add several passengers with same info' as 'message';
 
 -- Test if we can add payment details to a booking
 call add_payment_details(@booking_id, "Albert E", "Visa", "3", "2018", @card_number, @amount);
-select 'Managed to add several passengers with same info' as 'message';
+call add_payment_details(1, "Albert E", "Visa", "3", "2018", @card_number, @amount);
 
 /*select * from bookings;
 select * from passengers;
 select * from participates;
-select * from credit_card;*/
+select * from credit_card;
+*/
 
 select 'Test file completed without errors' as 'message';
+
+
+/* Temp tests*/
+-- select * from credit_card;
+-- select * from participates;
+-- set @booking_id = 1;
+/* select p.ssn, p.booking_id
+		from participates p
+		where p.booking_id = @booking_id; */
