@@ -150,8 +150,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id 
 																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
 begin
-	-- [TODO][Do some controls of the credit card info]
-	-- [TODO][Make sure that a booking can't be payed several times]
+	-- [TODO][Make sure there are enough seats on the plane before adding the payment info to the database]
+	-- [TODO][Do some controls of the credit card info (Check if exactly this card exists in the database)]
+	-- [TODO][Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)]
 	/* Check if the credit card already exists */
 	select count(*)
 		from credit_card

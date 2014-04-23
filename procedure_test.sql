@@ -21,6 +21,10 @@ select 'Managed to add several passengers with same info' as 'message';
 call add_payment_details(@booking_id, "Albert E", "Visa", "3", "2018", @card_number, @amount);
 call add_payment_details(1, "Albert E", "Visa", "3", "2018", @card_number, @amount);
 
+-- Test if the available seats on a given flight can be fetched
+call get_available_seats(@flight_id, @available_seats);
+select @available_seats;
+
 /*select * from bookings;
 select * from passengers;
 select * from participates;
