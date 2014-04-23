@@ -17,10 +17,6 @@ begin
 -- 1. Checks [TODO check if there are enough unpaid seats]
 
 -- 2. Create a reservation
-	-- Increment the booked seats [This block has been moved to generate_ticket_number]
-	/* update flights 
-		set booked_seats = booked_seats + participants
-		where flights.id = flight_id; */
 
 	-- Calculate price
 	call calculate_price(flight_id, @base_price);
@@ -116,7 +112,7 @@ begin
 			on airplane.id = w.airplane_id
 				into @airplane_size, @weekday;
 
-	-- fetch the weekday factor [Completedg]
+	-- fetch the weekday factor [Completed]
 	select day_factor
 			from weekly_flights w
 			inner join (select f.weekly_flights_id 
@@ -236,6 +232,35 @@ begin
 
 	-- Update one (1) tuple in the participates table by giving it a ticket number
 	-- [TODO]
+end
+$$ DELIMITER ;
+
+/* 
+Procedure to check how many available seats a given flight have
+*/
+drop procedure if exists get_available_seats;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_available_seats`(in flight_id int, out available_seats int)
+begin
+	-- Fetch the booked seats on this flight
+	select booked_seats
+		from flights
+		where id = flight_id
+		into @booked_seats;
+
+	-- Fetch the size of the airplane
+	select capacity
+	from (select weekly_flights_id
+			from flights
+			where flights.id = flight_id) f
+	left join weekly_flights w on w.id = f.weekly_flights_id
+	left join airplane a on a.id = w.airplane_id
+	into @capacity;
+	
+	-- Calculate the available seats
+	set available_seats = @capacity - @booked_seats;
 end
 $$ DELIMITER ;
 
