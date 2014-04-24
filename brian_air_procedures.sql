@@ -72,7 +72,6 @@ DELIMITER $$
 USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in flight_id int, out price int)
 begin
-	
 	-- fetch the number of passengers on the flight [Completed]
 	select booked_seats 
 		from flights 
@@ -130,8 +129,7 @@ begin
 		into price;
 
 	-- Tests
-	-- select @route_price, @weekdayfactor, @passenger_on_flight, @airplane_size, @passenger_factor;
-	
+	-- select @route_price, @weekdayfactor, @passenger_on_flight, @airplane_size, @passenger_factor
 end
 $$ DELIMITER ;
 
@@ -150,27 +148,47 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id 
 																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
 begin
-	-- [TODO][Make sure there are enough seats on the plane before adding the payment info to the database]
-	-- [TODO][Do some controls of the credit card info (Check if exactly this card exists in the database)]
-	-- [TODO][Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)]
-	/* Check if the credit card already exists */
-	select count(*)
-		from credit_card
-		where credit_card_number = card_number
-		into @tuple;
-
-	if @tuple = 0 then
-		/* Create a new tuple in the credit_card table */
-		insert into credit_card
-		(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
-		values
-		(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
-	end if;
+	-- variables
+	declare available_seats int default 0;
 	
-	/* Update the corresponding booking table*/
-	update bookings b
-			set credit_card = card_number
-			where b.id = booking_id;
+	-- [TODO][Make sure there are enough seats on the plane before adding the payment info to the database]
+	select count(*)
+		from participates p
+		where p.booking_id = booking_id
+	into @participants;
+
+	select flight_id
+		from (select * 
+				from bookings 
+				where id = booking_id) b
+		inner join flights f
+		on f.id = b.flight_id
+		into @flight_id;
+
+	call get_available_seats(@flight_id, available_seats);
+	
+	if available_seats > @participants then
+		-- [TODO][Do some controls of the credit card info (Check if exactly this card exists in the database)]
+		-- [TODO][Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)]
+		/* Check if the credit card already exists */
+		select count(*)
+			from credit_card
+			where credit_card_number = card_number
+			into @tuple;
+
+		if @tuple = 0 then
+			/* Create a new tuple in the credit_card table */
+			insert into credit_card
+			(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
+			values
+			(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
+		end if;
+		
+		/* Update the corresponding booking table*/
+		update bookings b
+				set credit_card = card_number
+				where b.id = booking_id;
+	end if;
 
 end
 $$ DELIMITER ;

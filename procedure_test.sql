@@ -15,13 +15,13 @@ call create_reservation(@flight_id, 3, 'mail', 073, @booking_id);
 	call add_passenger_details(@booking_id, '441126XXXX', 'Richard', 'F');
 	call add_passenger_details(@booking_id, '761201XXXX', 'Albert', 'E');
 	call add_passenger_details(@booking_id, '500203XXXX', 'Leonard', 'E');
-select 'Managed to add several passengers with same info' as 'message';
+-- select 'Managed to add several passengers with same info' as 'message';
 
 -- Test if we can add payment details to a booking
 call add_payment_details(@booking_id, "Albert E", "Visa", "3", "2018", @card_number, @amount);
-call add_payment_details(1, "Albert E", "Visa", "3", "2018", @card_number, @amount);
+call add_payment_details(1, "Albert E", "Visa", "3", "2018", @card_number, @amount); 
 
--- Test if the available seats on a given flight can be fetched
+-- Test if the available seats on a given flight can be fetched and is non-negative [@available_seats should be 2]
 call get_available_seats(@flight_id, @available_seats);
 select @available_seats;
 
