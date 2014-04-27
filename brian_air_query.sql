@@ -1,5 +1,11 @@
-/* Testar att göra lite queries för att se att inte allt är trasigt*/
+/*
+Query to check if a booking includes a contact 
+Used in the add_payment_details procedure
+*/
+-- set @booking_id = 1;
+select email, phone_number
+	from bookings b
+	where b.id = @booking_id;
 
-select route.id, route.base_price
-from route, weekly_flights
-where route.id = weekly_flights.route_id;
+/*Query to check if the booking has the correct number of passengers */
+
