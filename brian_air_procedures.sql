@@ -147,16 +147,32 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id 
 																	in _type varchar(20), in expiry_month varchar(20), 
 																	in expiry_year varchar(20), in card_number varchar(20),
 																	in amount int)
-begin
-	-- variables
+proc_label : begin
+	-- Variables
 	declare available_seats int default 0;
-	
-	-- [TODO][Make sure there are enough seats on the plane before adding the payment info to the database]
+	declare e_mail varchar(20);
+	declare phone_number varchar(20);
+
+	-- Checks if the booking have a contact person
+	select email, phone_number
+		from bookings b
+		where b.id = booking_id
+		into e_mail, phone_number;
+
+	if (e_mail = null or phone_number = null) then
+		select 'No contact details added!' as 'Error message';
+		leave proc_label;
+	end if;
+
+	-- [TODO] Check if the number of passengers added to the booking matches the number that was specified 
+	-- during the booking creation.
 	select count(*)
 		from participates p
 		where p.booking_id = booking_id
-	into @participants;
+		into @participants;
 
+	
+	-- Makes sure there are enough seats on the plane before adding the payment info to the database
 	select flight_id
 		from (select * 
 				from bookings 
@@ -283,9 +299,6 @@ begin
 end
 $$ DELIMITER ;
 
-/* 
-	TESTS
-*/
 
 select 'Successfully created procedures' as 'message'
 
