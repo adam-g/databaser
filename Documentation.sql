@@ -1,7 +1,7 @@
 /*
 Documentation file
 	Contents:
-		1.1 Format of the status
+		1.1 Format of the statuses
 		1.2 Status of the exercises 
  */
 
@@ -11,10 +11,10 @@ Documentation file
 	/* Format:
 		-- The Excersise status is written on this format:
 
-			Excercise #:
+	Excercise #:
 		-- Description: <Description of the excersise>
 		-- Comments: <Comments (e.g. what is left to do, problems )>
-		-- Status: 														[?]
+		-- Status: 														[Completion status]
 	*/
 
 /* ----------------------------------------------------------------------------------- */
@@ -37,6 +37,7 @@ Documentation file
 	Excercise 4:
 		-- Description: Write procedures
 		-- Comments: Mostly done. Might need to do some error control.
+						See completion status.
 		-- Status: 	[a] 												[DONE]
 					[b]													[DONE]
 					[c]													[DONE. Questions: NOT DONE]
@@ -63,6 +64,16 @@ Documentation file
 	Excercise 8:
 		-- Description: Create search query
 		-- Status: [Create query]										[NOT DONE]
+
+	--- PART 2: multiple users
+
+	Excercise 9:
+		-- Description: Two simultaneous MySQL sessions
+		-- Status: 														[NOT DONE]
+
+	Excercise 10:
+		-- Description: Transaction scheduling
+		-- Status: 														[NOT DONE]
 
 	*/
 
