@@ -63,7 +63,7 @@ Documentation file
 
 	Excercise 8:
 		-- Description: Create search query
-		-- Status: [Create query]										[NOT DONE]
+		-- Status: 	[Create query]										[NOT DONE]
 
 	--- PART 2: multiple users
 
