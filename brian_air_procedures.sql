@@ -26,9 +26,9 @@ begin
 
 	-- Create new booking tuple
 	insert into bookings 
-		(price, phone_number, email, flight_id)
+		(price, phone_number, email, flight_id, participants_num)
 		values
-		(@price, phone_number, email, flight_id);
+		(@price, phone_number, email, flight_id, participants);
 	
 	select last_insert_id()
 		into @booking_id;

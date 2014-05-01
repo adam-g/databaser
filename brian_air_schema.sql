@@ -33,6 +33,7 @@ create table bookings(
 		phone_number int,
 		email varchar(25),
 		flight_id int,
+		participants_num int,
 		constraint pk_bookings primary key(id));
 
 create table city(
