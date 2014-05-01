@@ -14,11 +14,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `create_reservation`(in flight_id in
 begin
 -- Variables
 
--- 1. Checks [TODO check if there are enough unpaid seats]
+-- 1. Checks [TODO check if there are enough unpaid seats] 
+	-- [DISCUSS: Should this be done here at all? Should you be able to reserve even if a flight is full?]
 
 -- 2. Create a reservation
 
-	-- Calculate price
+	-- Calculate price 
+		-- [DISCUSS: Should this be placed here? Should price be determined on when you reserve or when you book a flight?]
 	call calculate_price(flight_id, @base_price);
 	select @base_price * participants into @price;
 
@@ -26,7 +28,7 @@ begin
 	insert into bookings 
 		(price, phone_number, email, flight_id)
 		values
-		(@price, participants, email, flight_id);
+		(@price, phone_number, email, flight_id);
 	
 	select last_insert_id()
 		into @booking_id;
@@ -152,7 +154,7 @@ proc_label : begin
 	declare available_seats int default 0;
 	declare e_mail varchar(20);
 	declare phone_number varchar(20);
-
+	/* Queries that checks if the reservation is ready to be payed STARTS*/
 	-- Checks if the booking have a contact person
 	select email, phone_number
 		from bookings b
@@ -182,6 +184,8 @@ proc_label : begin
 		into @flight_id;
 
 	call get_available_seats(@flight_id, available_seats);
+
+	/* Queries that checks if the reservation is ready to be payed ENDS*/
 	
 	if available_seats > @participants then
 		-- [TODO][Do some controls of the credit card info (Check if exactly this card exists in the database)]
