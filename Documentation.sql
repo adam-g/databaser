@@ -39,7 +39,7 @@ Documentation file
 			-- Description: Write procedures
 			-- Comments: Mostly done. Might need to do some error control.
 							See completion status.
-			-- Status: 	[a] 												[DONE]
+			-- Status: 	[a]													[DONE]
 						[b]													[DONE]
 						[c]													[DONE. Questions: NOT DONE]
 						[d]													[DONE. 'Smart' formula: NOT DONE]
@@ -81,13 +81,18 @@ Documentation file
 	2.	TODO
 
 		2.1 Necessary TODOs
+			[Complete] If the same credit card is used: aggregate the billed amount (Results in new problems, see TODO in 2.1)
 			[TODO] Remove amount as an in parameter for add_payment_details. Instead fetch the amout from the booking tuple.
+			[TODO] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
+					which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
+					of this project?
+			[Completed] Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)
 
 		2.1 Desirable TODOs
 			[TODO] Cut down on the use of global variables. Change global variables to local by declaring them inside the procedures.
 			[Completed] Make sure that the sure can't add more people to a booking than was specified originally 
 					(i.e check the booking tuple's participants and compare with the count() from participates; can another passenger be
 						added or is the booking full?)
-
+			
 
 */

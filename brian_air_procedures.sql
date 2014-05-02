@@ -15,12 +15,13 @@ begin
 -- Variables
 
 -- 1. Checks [TODO check if there are enough unpaid seats] 
-	-- [DISCUSS: Should this be done here at all? Should you be able to reserve even if a flight is full?]
+	-- [TODO] DISCUSS: Should this be done here at all? Should you be able to reserve even if a flight is full?
 
 -- 2. Create a reservation
 
 	-- Calculate price 
-		-- [DISCUSS: Should this be placed here? Should price be determined on when you reserve or when you book a flight?]
+		-- [TODO] DISCUSS: Should this be placed here? Should price be determined on when you reserve or when you book a flight?
+		-- The Lab PM isn't completly clear regarding this
 	call calculate_price(flight_id, @base_price);
 	select @base_price * participants into @price;
 
@@ -46,8 +47,7 @@ USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `add_passenger_details`(in booking_id int, in SSN varchar(25), 
 																	in first_name varchar(25), in surname varchar(25))
 begin
-	-- [TODO] check if the booking is full or not
-	
+	-- Check if the booking is full or not
 	select count(*)
 		from participates p
 		where p.booking_id = booking_id
@@ -58,10 +58,7 @@ begin
 		where b.id = booking_id
 		into @number_of_participants;
 
-	if (@participants + 1 <= @number_of_participants) then
-		-- Create passenger tuples [TODO needs to check if the SSN already exists or not]
-		-- Check if the passenger already exists in our database and if not: create a new passenger tuple
-
+	if (@participants + 1 <= @number_of_participants) then -- End Check
 		if (not exists(select * from passengers where passengers.ssn = SSN)) then 
 			insert into passengers
 				(ssn, first_name, surname)
@@ -69,7 +66,8 @@ begin
 				(SSN, first_name, surname);
 		end if;
 
-		-- Update the participates relation [TODO should include some error handling]
+		-- Update the participates relation 
+		-- [TODO] should include some error handling: One passenger shouldn't be able to participate on a flight x2
 		insert into participates
 			(booking_id, ssn) -- Not handing out a ticket_number since the booking might not be paid yet
 			values
@@ -145,17 +143,11 @@ begin
 	-- Calculate price
 	select (@route_price * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor) 
 		into price;
-
-	-- Tests
-	-- select @route_price, @weekdayfactor, @passenger_on_flight, @airplane_size, @passenger_factor
 end
 $$ DELIMITER ;
 
 /* 
 Procedure to add payment details to the database.
-[TODO] Discuss how we should create procedure 4c. New credit card table or extra columns in the bookings table?
-		Implements the procudure using a new table in the database. 
-		[TODO] This might be against normalization; do some thinking about this implementation and potential improvements.
 */
 drop procedure if exists add_payment_details;
 
@@ -172,6 +164,17 @@ proc_label : begin
 	declare phone_number varchar(20);
 	declare number_of_participants int;
 	/* Queries that checks if the reservation is ready to be payed STARTS*/
+	-- Check if the booking already been payed (if its a booking or a reservation)
+	select credit_card
+		from bookings b
+		where b.id = booking_id
+		into @booking_control;	
+
+	if (@booking_control is not null) then 
+		select 'Booking is already payed for.' as 'Error message';
+		leave proc_label;
+	end if;
+
 	-- Checks if the booking have a contact person
 	select email, phone_number
 		from bookings b
@@ -183,7 +186,7 @@ proc_label : begin
 		leave proc_label;
 	end if;
 
-	-- [TODO] Check if the number of passengers added to the booking matches the number that was specified 
+	-- Check if the number of passengers added to the booking matches the number that was specified 
 	-- during the booking creation.
 	select count(*)
 		from participates p
@@ -218,8 +221,7 @@ proc_label : begin
 
 	/* Queries that checks if the reservation is ready to be payed ENDS*/
 
-	-- [TODO][Do some controls of the credit card info (Check if exactly this card exists in the database)]
-	-- [TODO][Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)]
+	-- [Completed (or is it?)] Do some controls of the credit card info (Check if exactly this card exists in the database)
 	/* Check if the credit card already exists */
 	select count(*)
 		from credit_card
@@ -232,12 +234,16 @@ proc_label : begin
 		(credit_card_number, name_of_holder, _type, expiry_month, expiry_year, amount)
 		values
 		(card_number, name_of_holder, _type, expiry_month, expiry_year, amount);
+	else -- The credit card exists in the database. Update the amount (Or even better create new transaction tuple!)
+		update credit_card c
+			set c.amount = c.amount + amount
+			where c.credit_card_number = card_number;
 	end if;
 	
 	/* Update the corresponding booking table*/
 	update bookings b
-			set credit_card = card_number
-			where b.id = booking_id;
+		set credit_card = card_number
+		where b.id = booking_id;
 
 
 end
