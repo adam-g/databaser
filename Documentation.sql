@@ -3,7 +3,8 @@ Documentation file
 	Contents:
 		1.1 Format of the statuses
 		1.2 Status of the exercises 
-		2.1 TODO.
+		2.1 About the TODO section
+		2.2 TODO section
  */
 
 /*	1
@@ -21,6 +22,8 @@ Documentation file
 	----------------------------------------------------------------------------------- 
 
 		1.2
+		The status of the exercises from a broad perspective. For a more detailed view check the procedures file and
+		the TODO section below.
 
 		Excercise 1:
 			-- Description: EER modeling
@@ -78,17 +81,25 @@ Documentation file
 
 	----------------------------------------------------------------------------------- 
 
-	2.	TODO
+	2.2. TODO
+		2.1
+			Try to keep the TODOs sorted; keep the most important TODOs at the top. Keep completed TODOs in the list but place
+			them at end of the list. Place completed items ahead of previously completed items (thus making sure that the first
+			completed item was the last completed one)
 
-		2.1 Necessary TODOs
-			[Complete] If the same credit card is used: aggregate the billed amount (Results in new problems, see TODO in 2.1)
-			[TODO] Remove amount as an in parameter for add_payment_details. Instead fetch the amout from the booking tuple.
+		2.2.1 Necessary TODOs
 			[TODO] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
 					which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
 					of this project?
+			[TODO] Re-write the generate_ticket_number method. Create a proper ticket generation.
+			[Completed] Remove amount as an in parameter for add_payment_details. Instead fetch the amout from the booking tuple.
+			[Completed] Include some error handling: One passenger shouldn't be able to participate on a flight x2 [Comment: Allowed this]
+			[Completed] If the same credit card is used: aggregate the billed amount (Results in new problems, see TODO in 2.1)
 			[Completed] Make sure that a booking can't be payed several times (leads to passengers getting new ticket_numbers)
 
-		2.1 Desirable TODOs
+		2.2.2 Desirable TODOs
+			[TODO] Aggregate similiar queries to minimize accesses. (Several queries accessing the same table is unnesessary).
+			[TODO] Write a proper test file (that checks results from queries)
 			[TODO] Cut down on the use of global variables. Change global variables to local by declaring them inside the procedures.
 			[Completed] Make sure that the sure can't add more people to a booking than was specified originally 
 					(i.e check the booking tuple's participants and compare with the count() from participates; can another passenger be

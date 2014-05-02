@@ -21,7 +21,7 @@ begin
 
 	-- Calculate price 
 		-- [TODO] DISCUSS: Should this be placed here? Should price be determined on when you reserve or when you book a flight?
-		-- The Lab PM isn't completly clear regarding this
+		-- The Lab PM isn't completely clear regarding this
 	call calculate_price(flight_id, @base_price);
 	select @base_price * participants into @price;
 
@@ -67,7 +67,6 @@ begin
 		end if;
 
 		-- Update the participates relation 
-		-- [TODO] should include some error handling: One passenger shouldn't be able to participate on a flight x2
 		insert into participates
 			(booking_id, ssn) -- Not handing out a ticket_number since the booking might not be paid yet
 			values
@@ -155,14 +154,14 @@ DELIMITER $$
 USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `add_payment_details`(in booking_id int, in name_of_holder varchar(20), 
 																	in _type varchar(20), in expiry_month varchar(20), 
-																	in expiry_year varchar(20), in card_number varchar(20),
-																	in amount int)
+																	in expiry_year varchar(20), in card_number varchar(20))																	
 proc_label : begin
 	-- Variables
 	declare available_seats int default 0;
 	declare e_mail varchar(20);
 	declare phone_number varchar(20);
 	declare number_of_participants int;
+	declare amount int;
 	/* Queries that checks if the reservation is ready to be payed STARTS*/
 	-- Check if the booking already been payed (if its a booking or a reservation)
 	select credit_card
@@ -227,6 +226,12 @@ proc_label : begin
 		from credit_card
 		where credit_card_number = card_number
 		into @tuple;
+	
+	-- Fetch the price of the booking
+	select price
+		from bookings b
+		where b.id = booking_id
+		into amount;
 
 	if @tuple = 0 then
 		/* Create a new tuple in the credit_card table */
@@ -244,8 +249,6 @@ proc_label : begin
 	update bookings b
 		set credit_card = card_number
 		where b.id = booking_id;
-
-
 end
 $$ DELIMITER ;
 
@@ -305,8 +308,6 @@ begin
 			where p.ssn = temp_ssn and p.booking_id = booking_id;
 	end loop generate_tickets;
 
-	-- Update one (1) tuple in the participates table by giving it a ticket number
-	-- [TODO]
 end
 $$ DELIMITER ;
 
