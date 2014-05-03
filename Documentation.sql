@@ -45,7 +45,7 @@ Documentation file
 			-- Status: 	[a]													[DONE]
 						[b]													[DONE]
 						[c]													[DONE. Questions: NOT DONE]
-						[d]													[DONE. 'Smart' formula: NOT DONE]
+						[d]													[DONE]
 						[e]													[NOT DONE]
 						[Check if the above is enough; are we missing 
 							any necessary queries to complete a booking]	[NOT DONE]
@@ -88,6 +88,7 @@ Documentation file
 			completed item was the last completed one)
 
 		2.2.1 Necessary TODOs
+			[TODO] Data inserted into flights and route is inconsistent; a flight flying routes not available this year. Fix this.
 			[TODO] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
 					which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
 					of this project?

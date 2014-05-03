@@ -352,5 +352,33 @@ end
 $$ DELIMITER ;
 
 
+/* 
+Procedure that returns available flight. A flight is available if:
+											- It has more seats available than number_of_passengers
+											- It flies on the specified date
+											- It has the correct departure and destination
+*/
+drop procedure if exists get_flights;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_flights`(in departure varchar(25), in destination varchar(25), 
+															in number_of_passengers int, in flight_date date)
+begin
+	-- Create a view with necessary info
+	-- [TODO] Once the query creating the view is complete, move to schema file
+	select * -- f.flight_date, base_price, c1._name as departure, c2._name as destination, (capacity - booked_seats) as available
+		from route r
+		left join city c1 on r.from_city_id = c1.id
+		left join city c2 on r.to_city_id = c2.id
+		inner join weekly_flights w on w.route_id = r.id
+		left join flights f on f.weekly_flights_id = w.id
+		join airplane a on airplane_id = a.id;
+end
+$$ DELIMITER ;
+
+
 select 'Successfully created procedures' as 'message'
+
+
 
