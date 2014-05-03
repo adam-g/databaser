@@ -367,13 +367,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_flights`(in departure varchar(2
 begin
 	-- Create a view with necessary info
 	-- [TODO] Once the query creating the view is complete, move to schema file
-	select * -- f.flight_date, base_price, c1._name as departure, c2._name as destination, (capacity - booked_seats) as available
+	select c1._name as departure, c2._name as destination, f.flight_date, w._time, (base_price * day_factor * (booked_seats + 1) / capacity * passenger_factor) as price, (capacity - booked_seats) as seats_available
 		from route r
 		left join city c1 on r.from_city_id = c1.id
 		left join city c2 on r.to_city_id = c2.id
 		inner join weekly_flights w on w.route_id = r.id
 		left join flights f on f.weekly_flights_id = w.id
-		join airplane a on airplane_id = a.id;
+		join airplane a on airplane_id = a.id
+		inner join _weekday on (_weekday._name = weekday_name and _weekday._year = w._year)
+		inner join passenger_factor on passenger_factor._year = w._year;
+
 end
 $$ DELIMITER ;
 
