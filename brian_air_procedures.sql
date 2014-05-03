@@ -68,7 +68,7 @@ begin
 
 		-- Update the participates relation 
 		insert into participates
-			(booking_id, ssn) -- Not handing out a ticket_number since the booking might not be paid yet
+			(booking_id, ssn)
 			values
 			(booking_id, SSN);
 	else
@@ -162,6 +162,7 @@ proc_label : begin
 	declare phone_number varchar(20);
 	declare number_of_participants int;
 	declare amount int;
+
 	/* Queries that checks if the reservation is ready to be payed STARTS*/
 	-- Check if the booking already been payed (if its a booking or a reservation)
 	select credit_card
@@ -254,23 +255,28 @@ $$ DELIMITER ;
 
 /* 
 Generates a new ticket number that is unique for each flight 
-				[TODO]: Do something smart!
 */
 drop procedure if exists generate_ticket_number;
 
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_ticket_number`(in flight_id int, out ticket_number varchar(20))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_ticket_number`(in booking_id int, in flight_id int, out ticket_number varchar(40))
 begin
-	-- Increment the booked seats for the specific flight
-	update flights 
-		set booked_seats = booked_seats + 1
-		where flights.id = flight_id;
-	-- Generate a ticket id that is unique for each flight [i.e the booked seats variable][TODO: do something smarter]
+	-- Variables
+	declare booked int;
+	declare temp1 varchar(20);
+	declare temp2 varchar(20);
+
 	select booked_seats
 		from flights
 		where flights.id = flight_id
-		into ticket_number;
+		into booked;
+	
+	set temp1 := concat(booking_id, 'Delimiter');
+	set temp1 := concat(temp1, booked);
+	
+	set ticket_number = sha1(temp1);
+	
 end
 $$ DELIMITER ;
 
@@ -302,12 +308,17 @@ begin
 			leave generate_tickets;
 		end if;
 
-		call generate_ticket_number(@flight_id, @ticket_num);
+		call generate_ticket_number(booking_id, flight_id, @ticket_num);
+		-- Update participates
 		update participates p
 			set p.ticket_number =  @ticket_num
 			where p.ssn = temp_ssn and p.booking_id = booking_id;
+		-- Increment the booked seats for the specific flight
+		update flights 
+			set booked_seats = booked_seats + 1
+			where flights.id = flight_id;
+		
 	end loop generate_tickets;
-
 end
 $$ DELIMITER ;
 

@@ -60,7 +60,7 @@ create table flights(
 create table participates(
 		booking_id int,
 		ssn varchar(25),
-		ticket_number int,
+		ticket_number varchar(40),
 		constraint pk_participates primary key(booking_id, ssn));
 
 create table passenger_factor(

@@ -91,7 +91,7 @@ Documentation file
 			[TODO] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
 					which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
 					of this project?
-			[TODO] Re-write the generate_ticket_number method. Create a proper ticket generation.
+			[Completed] Re-write the generate_ticket_number method. Create a proper ticket generation.
 			[Completed] Remove amount as an in parameter for add_payment_details. Instead fetch the amout from the booking tuple.
 			[Completed] Include some error handling: One passenger shouldn't be able to participate on a flight x2 [Comment: Allowed this]
 			[Completed] If the same credit card is used: aggregate the billed amount (Results in new problems, see TODO in 2.1)

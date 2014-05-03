@@ -12,7 +12,7 @@ call create_reservation(@flight_id, 3, 'mymail@domain.com', 073, @booking_id);
 	call add_passenger_details(@booking_id, '500203XXXX', 'Leonard', 'E');
 
 
-call create_reservation(@flight_id, 3, 'mail', 073, @booking_id);
+call create_reservation(@flight_id, 2, 'mail', 073, @booking_id);
 	call add_passenger_details(@booking_id, '441126XXXX', 'Richard', 'F');
 	call add_passenger_details(@booking_id, '761201XXXX', 'Albert', 'E');
 	call add_passenger_details(@booking_id, '500203XXXX', 'Leonard', 'E');
@@ -33,6 +33,12 @@ select * from credit_card;
 
 -- select 'Test file completed without errors' as 'message';
 
+call create_reservation(4, 2, 'mail', 073, @booking_id);
+	call add_passenger_details(@booking_id, '441126XXXX', 'Richard', 'F');
+	call add_passenger_details(@booking_id, '761201XXXX', 'Albert', 'E');
+	call add_passenger_details(@booking_id, '500203XXXX', 'Leonard', 'E');
+
+call add_payment_details(@booking_id, "Albert E", "Visa", "3", "2018", @card_number); 
 
 /* Temp tests*/
 -- select * from credit_card;
