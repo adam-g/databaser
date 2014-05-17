@@ -1,0 +1,25 @@
+											Answers for Lab 3 questions:
+											^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		4. 
+
+			c)	The credit card number can be protected from hackers by storing encrypted values in the database. 
+
+			e) 	Three reasons for doing processing in stored procedures instead of doing them on the client 
+				side (i.e. javascript)
+				
+					1. 	MySQL stored procedures are compiled on demand, after compilation they are 
+						stored in cache. Every single connection maintains it's own stored 
+						procedures cache and if the same procedure is used multiple times the 
+						compiled version is used. If the procedure is called once the stored 
+						procedure works as a query instead. _This increases the performance of 
+						applications._
+
+					2.  _Stored procedures reduces traffic between the server and the application._ 
+						Instead of sending multiple queries, only the name and the parameters of 
+						the procedure has to be sent from the client. 
+
+					3. 	_Stored procedures provides security._ Permissions can be given to 
+						applications making them able to access appropriate stored procedures, 
+						without giving them permissions to the underlying tables. 
+
+		

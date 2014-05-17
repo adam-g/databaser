@@ -114,6 +114,7 @@ alter table weekly_flights add constraint fk_airplane_id foreign key (airplane_i
 alter table weekly_flights add constraint fk_year foreign key (_year) references passenger_factor(_year);
 
 alter table participates add constraint fk_booking_id foreign key (booking_id) references bookings(id);
+alter table participates add constraint fk_ssn foreign key (ssn) references passengers(ssn);
 
 /* Creating triggers */
 select 'Creating triggers' as 'message';

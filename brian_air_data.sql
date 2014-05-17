@@ -97,7 +97,8 @@ insert into route
 /* Sätter in data i weekly_flights*/
 insert into weekly_flights(_time, route_id, _year, weekday_name, airplane_id) 
 values 
-	('12:00', 1, 2014, 'MONDAY', 5),
+	('12:00', 1, 2014, 'MONDAY', 3),
+	('13:37', 1, 2014, 'MONDAY', 5),
 	('07:00', 5, 2014, 'TUESDAY', 2),
 	('19:00', 18, 2014, 'WEDNESDAY', 1),
 	('15:00', 14, 2014, 'THURSDAY', 3),
@@ -116,7 +117,9 @@ values
 	(0, '2014-03-25', 2),
 	(0, '2014-03-24', 1),
 	(2, '2014-04-06', 7), -- New values 2014-05-03
+	(0, '2014-03-24', 2),
 	(4, '2014-04-13', 7);
+
 select 'Populated the database successfully' as 'message';
 	
 	

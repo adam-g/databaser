@@ -22,20 +22,23 @@ begin
 	-- Calculate price 
 		-- [TODO] DISCUSS: Should this be placed here? Should price be determined on when you reserve or when you book a flight?
 		-- The Lab PM isn't completely clear regarding this
-	call calculate_price(flight_id, @base_price);
-	select @base_price * participants into @price;
+		-- Adams åsikt: 
+		-- Jag tycker att priset ska bestämmas vid bokning, 
+		-- reservationen är för att man ska slippa komma ihåg alla ifyllda uppgifter tänker jag
 
 	-- Create new booking tuple
 	insert into bookings 
-		(price, phone_number, email, flight_id, participants_num)
+		(phone_number, email, flight_id, participants_num)
 		values
-		(@price, phone_number, email, flight_id, participants);
+		(phone_number, email, flight_id, participants);
 	
 	select last_insert_id()
 		into @booking_id;
 	set booking_id := @booking_id;
 end
 $$ DELIMITER ;
+
+Select 'Succesfully created procedure create_reservation' as Message;
 
 /*
 Procedure that adds passenger details to a specific reservation
@@ -77,16 +80,17 @@ begin
 	
 end
 $$ DELIMITER ;
+Select 'Succesfully created procedure add_passenger_details' as Message;
 
 /*
-Procedure for calculating the price of a seat on a specific flight
+ Function for calculating the price of a seat on a specific flight
 */
-drop procedure if exists calculate_price;
-
+drop function if exists calculate_price;
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_price`(in flight_id int, out price int)
-begin
+CREATE DEFINER=`root`@`localhost` FUNCTION `calculate_price`( flight_id INT)
+	RETURNS INT
+BEGIN 
 	-- fetch the number of passengers on the flight [Completed]
 	select booked_seats 
 		from flights 
@@ -139,11 +143,12 @@ begin
 			on wd._year = w._year
 				into @weekdayfactor;
 
-	-- Calculate price
-	select (@route_price * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor) 
-		into price;
-end
-$$ DELIMITER ;
+	-- Calculate and return the price
+	 RETURN (@route_price * @weekdayfactor * (@passenger_on_flight + 1)/@airplane_size * @passenger_factor);
+END;
+$$ DELIMITER ; 
+Select 'Succesfully created function calculate_price' as Message;
+
 
 /* 
 Procedure to add payment details to the database.
@@ -212,9 +217,7 @@ proc_label : begin
 		on f.id = b.flight_id
 		into @flight_id;
 
-	call get_available_seats(@flight_id, available_seats);
-
-	if available_seats < @participants then
+	if (SELECT get_available_seats(@flight_id)) < @participants then
 		select 'Not enough seats left on the flight.' as 'Error message';
 		leave proc_label;
 	end if;
@@ -248,10 +251,11 @@ proc_label : begin
 	
 	/* Update the corresponding booking table*/
 	update bookings b
-		set credit_card = card_number
+		set credit_card = card_number, price = calculate_price(@flight_id)
 		where b.id = booking_id;
 end
 $$ DELIMITER ;
+Select 'Succesfully created procedure add_payment_details' as Message;
 
 /* 
 Generates a new ticket number that is unique for each flight 
@@ -279,6 +283,7 @@ begin
 	
 end
 $$ DELIMITER ;
+Select 'Succesfully created procedure generate_ticket_number' as Message;
 
 /* 
 Assigns tickets to all passengers in a booking.
@@ -295,8 +300,8 @@ begin
 	declare temp_booking_id integer default 0;
 	-- declare cursor
 	declare cur1 cursor for select p.ssn
-								from participates p
-								where p.booking_id = booking_id;
+							from participates p
+							where p.booking_id = booking_id;
 	
 	declare continue handler for not found set finished = 1;
 	-- fetch results using the cursor
@@ -321,67 +326,105 @@ begin
 	end loop generate_tickets;
 end
 $$ DELIMITER ;
+Select 'Succesfully created procedure assign_ticket_to_passengers' as Message;
 
 /* 
 Procedure to check how many available seats a given flight have
 */
-drop procedure if exists get_available_seats;
+DROP FUNCTION IF EXISTS get_available_seats;
 
 DELIMITER $$
 USE `brian_air`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_available_seats`(in flight_id int, out available_seats int)
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_available_seats`(flight_id int)
+RETURNS INT
 begin
 	-- Fetch the booked seats on this flight
 	select booked_seats
-		from flights
-		where id = flight_id
-		into @booked_seats;
+	from flights
+	where id = flight_id
+	into @booked_seats;
 
 	-- Fetch the size of the airplane
 	select capacity
 	from (select weekly_flights_id
-			from flights
-			where flights.id = flight_id) f
-	left join weekly_flights w on w.id = f.weekly_flights_id
-	left join airplane a on a.id = w.airplane_id
+		  from flights
+		  where flights.id = flight_id) f
+	inner join weekly_flights w on w.id = f.weekly_flights_id
+	inner join airplane a on a.id = w.airplane_id
 	into @capacity;
 	
 	-- Calculate the available seats
-	set available_seats = @capacity - @booked_seats;
+	RETURN (@capacity - @booked_seats);
 end
 $$ DELIMITER ;
+Select 'Succesfully created function get_available_seats' as Message;
 
 
 /* 
-Procedure that returns available flight. A flight is available if:
-											- It has more seats available than number_of_passengers
-											- It flies on the specified date
-											- It has the correct departure and destination
+Procedure that returns available flights. A flight is available if:
+											- It has more seats available than number_of_passengers [completed]
+											- It flies on the specified date [completed]
+											- It has the correct departure and destination [completed]
 */
 drop procedure if exists get_flights;
 
 DELIMITER $$
 USE `brian_air`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_flights`(in departure varchar(25), in destination varchar(25), 
-															in number_of_passengers int, in flight_date date)
+															in number_of_passengers int, in desired_flight_date date)
 begin
-	-- Create a view with necessary info
-	-- [TODO] Once the query creating the view is complete, move to schema file
-	select c1._name as departure, c2._name as destination, f.flight_date, w._time, (base_price * day_factor * (booked_seats + 1) / capacity * passenger_factor) as price, (capacity - booked_seats) as seats_available
-		from route r
-		left join city c1 on r.from_city_id = c1.id
-		left join city c2 on r.to_city_id = c2.id
-		inner join weekly_flights w on w.route_id = r.id
-		left join flights f on f.weekly_flights_id = w.id
-		join airplane a on airplane_id = a.id
-		inner join _weekday on (_weekday._name = weekday_name and _weekday._year = w._year)
-		inner join passenger_factor on passenger_factor._year = w._year;
 
+
+	SELECT flights.id as 'Flight id', flight_date as 'Flight date', _time as 'Time of departure', ((SELECT calculate_price(flights.id)) * number_of_passengers) as 'Price'
+	FROM flights
+			INNER JOIN weekly_flights
+				ON flights.weekly_flights_id = weekly_flights.id
+			WHERE weekly_flights.route_id = get_route(departure, destination) AND flights.flight_date = desired_flight_date AND (number_of_passengers <= get_available_seats(flights.id)); 
+													
 end
 $$ DELIMITER ;
+Select 'Succesfully created procedure get_flights' as Message;
 
 
-select 'Successfully created procedures' as 'message'
+/*
+Procedure that returns the route id for a given departure and destination [varchar's]	
+*/
+drop FUNCTION if exists get_route;
 
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_route`(departure varchar(25), destination varchar(25))
+RETURNS INT
+
+begin 
+
+RETURN (SELECT id
+		FROM route 
+		WHERE from_city_id = (SELECT id 
+							  FROM city 
+							  WHERE city._name = departure)
+		AND to_city_id = (SELECT id 
+						  FROM city
+						  WHERE city._name = destination) AND _year = (select get_year()));
+end
+$$ DELIMITER ;
+Select 'Succesfully created function get_route' as Message;
+
+
+
+/*
+Returns the current year
+*/
+drop FUNCTION if exists get_year;
+
+DELIMITER $$
+USE `brian_air`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_year`()
+RETURNS INT
+begin
+RETURN 2014;
+end
+$$ DELIMITER ;
+select 'Successfully created procedure get_year' as Message;
 
 

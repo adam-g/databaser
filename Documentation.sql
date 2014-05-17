@@ -32,7 +32,7 @@ Documentation file
 		Excercise 2:
 			-- Description: Translate to tables
 			-- Comments: Do we need to normalise?
-			-- Status: 														[?]
+			-- Status: 														[To be handed in to Dag]
 
 		Excercise 3:
 			-- Description: Set up the database, populate database
@@ -44,9 +44,9 @@ Documentation file
 							See completion status.
 			-- Status: 	[a]													[DONE]
 						[b]													[DONE]
-						[c]													[DONE. Questions: NOT DONE]
+						[c]													[DONE]
 						[d]													[DONE]
-						[e]													[NOT DONE]
+						[e]													[DONE]
 						[Check if the above is enough; are we missing 
 							any necessary queries to complete a booking]	[NOT DONE]
 						
@@ -67,7 +67,7 @@ Documentation file
 
 		Excercise 8:
 			-- Description: Create search query
-			-- Status: 	[Create query]										[NOT DONE]
+			-- Status: 	[Create query]										[DONE]
 
 		--- PART 2: multiple users
 
@@ -89,9 +89,9 @@ Documentation file
 
 		2.2.1 Necessary TODOs
 			[TODO] Data inserted into flights and route is inconsistent; a flight flying routes not available this year. Fix this.
-			[TODO] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
-					which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
-					of this project?
+			[Completed] Discuss how the credit card was implemented. Right now the amount drawn from a credit card is aggregated 
+						which means that it will be impossible to do refunds. A transaction table would be necessary, but is this in the scope
+						of this project?
 			[Completed] Re-write the generate_ticket_number method. Create a proper ticket generation.
 			[Completed] Remove amount as an in parameter for add_payment_details. Instead fetch the amout from the booking tuple.
 			[Completed] Include some error handling: One passenger shouldn't be able to participate on a flight x2 [Comment: Allowed this]
